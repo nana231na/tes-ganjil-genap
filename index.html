@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes Ganjil Genap</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { max-width: 400px; margin: auto; }
+        .question { margin: 10px 0; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
+        .button { padding: 5px 10px; margin: 5px; cursor: pointer; }
+        .correct { background-color: green; color: white; }
+        .wrong { background-color: red; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tes Ganjil Genap</h1>
+        <p id="timer">Sisa Waktu: 60 detik</p>
+        <div id="questions"></div>
+        <div id="result" style="display: none;">
+            <p>Persentase Ketepatan: <span id="accuracy">0</span>%</p>
+            <p>Jawaban Benar: <span id="correctCount">0</span></p>
+            <p>Jawaban Salah: <span id="wrongCount">0</span></p>
+            <p>Kecepatan Mengerjakan: <span id="speed">0</span> soal/detik</p>
+        </div>
+    </div>
+    <script>
+        let timeLeft = 60;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let totalAnswered = 0;
+        let timerStarted = false;
+        let timer;
+        const questionsContainer = document.getElementById("questions");
+        const timerElement = document.getElementById("timer");
+        const resultElement = document.getElementById("result");
+        const accuracyElement = document.getElementById("accuracy");
+        const correctCountElement = document.getElementById("correctCount");
+        const wrongCountElement = document.getElementById("wrongCount");
+        const speedElement = document.getElementById("speed");
+        
+        function generateQuestions() {
+            for (let i = 0; i < 100; i++) {
+                let num1 = Math.floor(Math.random() * 9) + 1;
+                let num2 = Math.floor(Math.random() * 9) + 1;
+                let sum = num1 + num2;
+                let expectedAnswer = sum % 2 === 0 ? "0" : "1";
+                
+                let questionDiv = document.createElement("div");
+                questionDiv.className = "question";
+                questionDiv.innerHTML = `<p>${num1} + ${num2} = ?</p>
+                    <button class="button" onclick="answer(this, '${expectedAnswer}', ${i})">0</button>
+                    <button class="button" onclick="answer(this, '${expectedAnswer}', ${i})">1</button>`;
+                
+                questionsContainer.appendChild(questionDiv);
+            }
+        }
+        
+        function answer(button, correctAnswer, index) {
+            if (!timerStarted) {
+                startTimer();
+                timerStarted = true;
+            }
+            if (button.parentElement.classList.contains("answered")) return;
+            let userAnswer = button.innerText;
+            if (userAnswer === correctAnswer) {
+                button.classList.add("correct");
+                correctCount++;
+            } else {
+                button.classList.add("wrong");
+                wrongCount++;
+            }
+            totalAnswered++;
+            button.parentElement.classList.add("answered");
+            button.parentElement.querySelectorAll("button").forEach(btn => btn.disabled = true);
+        }
+        
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                timerElement.innerText = `Sisa Waktu: ${timeLeft} detik`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showResults();
+                }
+            }, 1000);
+        }
+        
+        function showResults() {
+            document.body.innerHTML = "";
+            let accuracy = totalAnswered > 0 ? ((correctCount / totalAnswered) * 100).toFixed(2) : 0;
+            let speed = totalAnswered > 0 ? (totalAnswered / 60).toFixed(2) : 0;
+            document.body.innerHTML = `
+                <div class="container">
+                    <h1>Hasil Tes</h1>
+                    <p>Persentase Ketepatan: <span>${accuracy}</span>%</p>
+                    <p>Jawaban Benar: <span>${correctCount}</span></p>
+                    <p>Jawaban Salah: <span>${wrongCount}</span></p>
+                    <p>Kecepatan Mengerjakan: <span>${speed}</span> soal/detik</p>
+                </div>`;
+        }
+        
+        generateQuestions();
+    </script>
+</body>
+</html>
